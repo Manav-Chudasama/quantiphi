@@ -1,157 +1,18 @@
-import { useEffect, useReducer, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { FiAlertTriangle, FiCamera, FiTrash2, FiTarget } from "react-icons/fi";
-import { getGoalPlan, type FitnessGoal, type GoalPlan } from "./lib/goals";
-import { MOCK_SCAN_FOODS, CUSTOM_ENTRY_PROFILE } from "./lib/mockFoods";
-import { loadSession, saveSession } from "./lib/storage";
-import type { DraftMeal, MealItem } from "./lib/types";
-import {
-  percentOf,
-  scaleNutrition,
-  sumMacros,
-  type Macros,
-} from "./lib/nutrition";
-
-interface TrackerState {
-  meals: MealItem[];
-  goal: FitnessGoal;
-  totals: Macros;
-  targets: GoalPlan;
-  validation: "within-budget" | "over-budget";
-  warningOpen: boolean;
-}
-
-type TrackerAction =
-  | { type: "add-meal"; meal: MealItem }
-  | { type: "delete-meal"; id: string }
-  | { type: "set-goal"; goal: FitnessGoal }
-  | { type: "dismiss-warning" };
-
-const STORAGE_FALLBACK: TrackerState = buildState([], "maintenance", false);
-
-function buildState(
-  meals: MealItem[],
-  goal: FitnessGoal,
-  warningOpen: boolean,
-): TrackerState {
-  const targets = getGoalPlan(goal);
-  const totals = sumMacros(meals);
-  const validation =
-    totals.calories > targets.calories ? "over-budget" : "within-budget";
-
-  return {
-    meals,
-    goal,
-    totals,
-    targets,
-    validation,
-    warningOpen: warningOpen && validation === "over-budget",
-  };
-}
-
-function initializeTrackerState() {
-  const storedSession = loadSession();
-
-  if (!storedSession) {
-    return STORAGE_FALLBACK;
-  }
-
-  return buildState(storedSession.meals, storedSession.goal, false);
-}
-
-function reducer(state: TrackerState, action: TrackerAction): TrackerState {
-  switch (action.type) {
-    case "add-meal": {
-      const nextState = buildState(
-        [action.meal, ...state.meals],
-        state.goal,
-        state.warningOpen,
-      );
-
-      return {
-        ...nextState,
-        warningOpen:
-          state.validation === "within-budget" &&
-          nextState.validation === "over-budget"
-            ? true
-            : state.warningOpen,
-      };
-    }
-    case "delete-meal": {
-      const nextState = buildState(
-        state.meals.filter((meal) => meal.id !== action.id),
-        state.goal,
-        state.warningOpen,
-      );
-
-      return {
-        ...nextState,
-        warningOpen:
-          nextState.validation === "over-budget" ? state.warningOpen : false,
-      };
-    }
-    case "set-goal": {
-      const nextState = buildState(state.meals, action.goal, state.warningOpen);
-
-      return {
-        ...nextState,
-        warningOpen:
-          state.validation === "within-budget" &&
-          nextState.validation === "over-budget"
-            ? true
-            : state.warningOpen && nextState.validation === "over-budget",
-      };
-    }
-    case "dismiss-warning": {
-      return { ...state, warningOpen: false };
-    }
-    default: {
-      return state;
-    }
-  }
-}
-
-function createMeal(
-  template: typeof CUSTOM_ENTRY_PROFILE,
-  grams: number,
-  name: string,
-  source: "manual" | "image",
-): MealItem {
-  const nutrition = scaleNutrition(template, grams);
-
-  return {
-    id: crypto.randomUUID(),
-    name,
-    grams,
-    source,
-    createdAt: Date.now(),
-    templateId: template.id,
-    ...nutrition,
-  };
-}
+import { getGoalPlan } from "./lib/goals";
+import { CUSTOM_ENTRY_PROFILE, MOCK_SCAN_FOODS } from "./lib/mockFoods";
+import { percentOf } from "./lib/nutrition";
+import type { DraftMeal } from "./lib/types";
+import { useMealTracker } from "./state/useMealTracker";
 
 function App() {
-  const [state, dispatch] = useReducer(
-    reducer,
-    undefined,
-    initializeTrackerState,
-  );
+  const { state, addMealFromTemplate, deleteMeal, setGoal, dismissWarning } =
+    useMealTracker();
   const [draft, setDraft] = useState<DraftMeal>({
     name: "",
     grams: "250",
   });
-
-  useEffect(() => {
-    saveSession({
-      meals: state.meals,
-      goal: state.goal,
-    });
-  }, [state.goal, state.meals]);
-
-  useEffect(() => {
-    if (state.validation === "within-budget" && state.warningOpen) {
-      dispatch({ type: "dismiss-warning" });
-    }
-  }, [state.validation, state.warningOpen]);
 
   const activePlan = state.targets;
   const remainingCalories = Math.max(
@@ -186,11 +47,7 @@ function App() {
       return;
     }
 
-    dispatch({
-      type: "add-meal",
-      meal: createMeal(CUSTOM_ENTRY_PROFILE, grams, mealName, "manual"),
-    });
-
+    addMealFromTemplate(CUSTOM_ENTRY_PROFILE, grams, mealName, "manual");
     setDraft({ name: "", grams: draft.grams });
   };
 
@@ -202,10 +59,7 @@ function App() {
       grams: String(preset.suggestedGrams),
     });
 
-    dispatch({
-      type: "add-meal",
-      meal: createMeal(preset, preset.suggestedGrams, preset.label, "image"),
-    });
+    addMealFromTemplate(preset, preset.suggestedGrams, preset.label, "image");
   };
 
   return (
@@ -241,7 +95,7 @@ function App() {
                     <button
                       key={goal}
                       type="button"
-                      onClick={() => dispatch({ type: "set-goal", goal })}
+                      onClick={() => setGoal(goal)}
                       className={`rounded-2xl border px-4 py-3 text-left transition duration-200 ${active ? plan.chipClass : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"}`}
                     >
                       <div className="text-sm font-semibold">{plan.label}</div>
@@ -473,9 +327,7 @@ function App() {
                       <StatCell value={meal.fats.toFixed(1)} label="fats" />
                       <button
                         type="button"
-                        onClick={() =>
-                          dispatch({ type: "delete-meal", id: meal.id })
-                        }
+                        onClick={() => deleteMeal(meal.id)}
                         className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-3 text-rose-200 transition hover:bg-rose-500/15 hover:text-rose-100"
                         aria-label={`Delete ${meal.name}`}
                       >
@@ -511,7 +363,7 @@ function App() {
 
             <button
               type="button"
-              onClick={() => dispatch({ type: "dismiss-warning" })}
+              onClick={dismissWarning}
               className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-rose-500 to-red-500 px-4 py-3 text-sm font-semibold text-white transition hover:brightness-110"
             >
               Dismiss warning
