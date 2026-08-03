@@ -129,13 +129,15 @@ function App() {
               onSubmit={handleManualSubmit}
               onMockUpload={handleMockUpload}
             />
-
-            <MealHistory
-              meals={state.meals}
-              validation={state.validation}
-              onDelete={deleteMeal}
-            />
           </aside>
+        </section>
+
+        <section className="w-full">
+          <MealHistory
+            meals={state.meals}
+            validation={state.validation}
+            onDelete={deleteMeal}
+          />
         </section>
       </div>
 
