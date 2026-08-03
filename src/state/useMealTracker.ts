@@ -1,7 +1,12 @@
 import { useEffect, useReducer } from "react";
 import { type FitnessGoal } from "../lib/goals";
 import { loadSession, saveSession } from "../lib/storage";
-import { buildTrackerState, createDefaultTrackerState, applyTrackerAction, createMealItem } from "./trackerLogic";
+import {
+  buildTrackerState,
+  createDefaultTrackerState,
+  applyTrackerAction,
+  createMealItem,
+} from "./trackerLogic";
 import type { FoodTemplate } from "../lib/nutrition";
 import type { MealSource } from "../lib/types";
 
