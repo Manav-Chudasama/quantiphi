@@ -18,10 +18,12 @@ export function GoalToggle({ goal, onChange }: GoalToggleProps) {
               key={candidate}
               type="button"
               onClick={() => onChange(candidate)}
-              className={`rounded-2xl border px-4 py-3 text-left transition duration-200 ${active ? plan.chipClass : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"}`}
+              className={`rounded-2xl border px-4 py-3 text-left transition duration-200 ${active ? plan.chipClass : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"}`}
             >
-              <div className="text-sm font-semibold">{plan.label}</div>
-              <div className="mt-1 text-xs leading-5 opacity-80">
+              <div className="text-sm font-semibold text-zinc-950">
+                {plan.label}
+              </div>
+              <div className="mt-1 text-xs leading-5 text-zinc-500">
                 {plan.description}
               </div>
             </button>

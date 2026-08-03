@@ -68,22 +68,20 @@ function App() {
   };
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-100">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.22),_transparent_32%),radial-gradient(circle_at_top_right,_rgba(56,189,248,0.18),_transparent_30%),linear-gradient(180deg,_rgba(15,23,42,0.96),_rgba(2,6,23,1))]" />
-
-      <div className="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-        <header className="rounded-[2rem] border border-white/10 bg-white/5 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-6">
+    <main className="min-h-screen bg-white text-zinc-950">
+      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+        <header className="rounded-[1.75rem] border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-cyan-100/90">
+              <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-zinc-700">
                 <FiTarget />
                 Daily Nutrition Dashboard
               </div>
               <div className="space-y-2">
-                <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
+                <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 sm:text-4xl lg:text-5xl">
                   Calorie Tracker & Macro Dashboard
                 </h1>
-                <p className="max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
+                <p className="max-w-2xl text-sm leading-6 text-zinc-600 sm:text-base">
                   Track meals in memory, scale nutrition by portion, and watch
                   the budget shift in real time as your goal changes.
                 </p>
@@ -94,7 +92,7 @@ function App() {
           </div>
         </header>
 
-        <section className="grid gap-6 xl:grid-cols-[1.4fr_0.95fr]">
+        <section className="grid gap-6 xl:grid-cols-[1.35fr_0.95fr]">
           <div className="space-y-6">
             <CalorieMeter
               targets={activePlan}
