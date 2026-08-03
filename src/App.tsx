@@ -1,55 +1,71 @@
-import { useState, type FormEvent } from 'react'
-import { FiTarget } from 'react-icons/fi'
-import { CUSTOM_ENTRY_PROFILE, MOCK_SCAN_FOODS } from './lib/mockFoods'
-import { percentOf } from './lib/nutrition'
-import type { DraftMeal } from './lib/types'
-import { CalorieMeter } from './components/CalorieMeter'
-import { GoalToggle } from './components/GoalToggle'
-import { MacroMeters } from './components/MacroMeters'
-import { MealHistory } from './components/MealHistory'
-import { MealLogger } from './components/MealLogger'
-import { WarningModal } from './components/WarningModal'
-import { useMealTracker } from './state/useMealTracker'
+import { useState, type FormEvent } from "react";
+import { FiTarget } from "react-icons/fi";
+import { CUSTOM_ENTRY_PROFILE, MOCK_SCAN_FOODS } from "./lib/mockFoods";
+import { percentOf } from "./lib/nutrition";
+import type { DraftMeal } from "./lib/types";
+import { CalorieMeter } from "./components/CalorieMeter";
+import { GoalToggle } from "./components/GoalToggle";
+import { MacroMeters } from "./components/MacroMeters";
+import { MealHistory } from "./components/MealHistory";
+import { MealLogger } from "./components/MealLogger";
+import { WarningModal } from "./components/WarningModal";
+import { useMealTracker } from "./state/useMealTracker";
 
 function App() {
-  const { state, addMealFromTemplate, deleteMeal, setGoal, dismissWarning } = useMealTracker()
+  const { state, addMealFromTemplate, deleteMeal, setGoal, dismissWarning } =
+    useMealTracker();
   const [draft, setDraft] = useState<DraftMeal>({
-    name: '',
-    grams: '250',
-  })
+    name: "",
+    grams: "250",
+  });
 
-  const activePlan = state.targets
-  const remainingCalories = Math.max(activePlan.calories - state.totals.calories, 0)
-  const overByCalories = Math.max(state.totals.calories - activePlan.calories, 0)
-  const calorieFill = Math.min(percentOf(state.totals.calories, activePlan.calories), 100)
-  const proteinFill = Math.min(percentOf(state.totals.protein, activePlan.protein), 100)
-  const carbsFill = Math.min(percentOf(state.totals.carbs, activePlan.carbs), 100)
-  const fatsFill = Math.min(percentOf(state.totals.fats, activePlan.fats), 100)
+  const activePlan = state.targets;
+  const remainingCalories = Math.max(
+    activePlan.calories - state.totals.calories,
+    0,
+  );
+  const overByCalories = Math.max(
+    state.totals.calories - activePlan.calories,
+    0,
+  );
+  const calorieFill = Math.min(
+    percentOf(state.totals.calories, activePlan.calories),
+    100,
+  );
+  const proteinFill = Math.min(
+    percentOf(state.totals.protein, activePlan.protein),
+    100,
+  );
+  const carbsFill = Math.min(
+    percentOf(state.totals.carbs, activePlan.carbs),
+    100,
+  );
+  const fatsFill = Math.min(percentOf(state.totals.fats, activePlan.fats), 100);
 
   const handleManualSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+    event.preventDefault();
 
-    const mealName = draft.name.trim()
-    const grams = Number(draft.grams)
+    const mealName = draft.name.trim();
+    const grams = Number(draft.grams);
 
     if (!mealName || Number.isNaN(grams) || grams <= 0) {
-      return
+      return;
     }
 
-    addMealFromTemplate(CUSTOM_ENTRY_PROFILE, grams, mealName, 'manual')
-    setDraft({ name: '', grams: draft.grams })
-  }
+    addMealFromTemplate(CUSTOM_ENTRY_PROFILE, grams, mealName, "manual");
+    setDraft({ name: "", grams: draft.grams });
+  };
 
   const handleMockUpload = () => {
-    const preset = MOCK_SCAN_FOODS[state.meals.length % MOCK_SCAN_FOODS.length]
+    const preset = MOCK_SCAN_FOODS[state.meals.length % MOCK_SCAN_FOODS.length];
 
     setDraft({
       name: preset.label,
       grams: String(preset.suggestedGrams),
-    })
+    });
 
-    addMealFromTemplate(preset, preset.suggestedGrams, preset.label, 'image')
-  }
+    addMealFromTemplate(preset, preset.suggestedGrams, preset.label, "image");
+  };
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-100">
@@ -68,7 +84,8 @@ function App() {
                   Calorie Tracker & Macro Dashboard
                 </h1>
                 <p className="max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
-                  Track meals in memory, scale nutrition by portion, and watch the budget shift in real time as your goal changes.
+                  Track meals in memory, scale nutrition by portion, and watch
+                  the budget shift in real time as your goal changes.
                 </p>
               </div>
             </div>
@@ -89,9 +106,21 @@ function App() {
             />
 
             <MacroMeters
-              protein={{ current: state.totals.protein, target: activePlan.protein, fill: proteinFill }}
-              carbs={{ current: state.totals.carbs, target: activePlan.carbs, fill: carbsFill }}
-              fats={{ current: state.totals.fats, target: activePlan.fats, fill: fatsFill }}
+              protein={{
+                current: state.totals.protein,
+                target: activePlan.protein,
+                fill: proteinFill,
+              }}
+              carbs={{
+                current: state.totals.carbs,
+                target: activePlan.carbs,
+                fill: carbsFill,
+              }}
+              fats={{
+                current: state.totals.fats,
+                target: activePlan.fats,
+                fill: fatsFill,
+              }}
             />
           </div>
 
@@ -114,7 +143,7 @@ function App() {
 
       <WarningModal open={state.warningOpen} onDismiss={dismissWarning} />
     </main>
-  )
+  );
 }
 
-export default App
+export default App;

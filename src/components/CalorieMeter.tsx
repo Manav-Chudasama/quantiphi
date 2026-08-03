@@ -1,12 +1,12 @@
-import type { GoalPlan } from '../lib/goals'
+import type { GoalPlan } from "../lib/goals";
 
 interface CalorieMeterProps {
-  targets: GoalPlan
-  caloriesConsumed: number
-  calorieFill: number
-  remainingCalories: number
-  validation: 'within-budget' | 'over-budget'
-  overByCalories: number
+  targets: GoalPlan;
+  caloriesConsumed: number;
+  calorieFill: number;
+  remainingCalories: number;
+  validation: "within-budget" | "over-budget";
+  overByCalories: number;
 }
 
 export function CalorieMeter({
@@ -30,12 +30,14 @@ export function CalorieMeter({
         </div>
         <div className="rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-slate-300">
           <div className="font-semibold text-white">
-            {validation === 'over-budget'
+            {validation === "over-budget"
               ? `${overByCalories.toLocaleString()} over`
               : `${remainingCalories.toLocaleString()} remaining`}
           </div>
           <div className="mt-1 text-xs uppercase tracking-[0.18em] text-slate-400">
-            {validation === 'over-budget' ? 'Crimson alert active' : 'Calm pace still green'}
+            {validation === "over-budget"
+              ? "Crimson alert active"
+              : "Calm pace still green"}
           </div>
         </div>
       </div>
@@ -43,7 +45,7 @@ export function CalorieMeter({
       <div className="mt-6 space-y-3">
         <div className="h-6 overflow-hidden rounded-full bg-slate-900 ring-1 ring-white/10">
           <div
-            className={`h-full rounded-full bg-gradient-to-r transition-all duration-500 ${validation === 'over-budget' ? 'from-rose-500 to-red-500' : targets.barClass}`}
+            className={`h-full rounded-full bg-gradient-to-r transition-all duration-500 ${validation === "over-budget" ? "from-rose-500 to-red-500" : targets.barClass}`}
             style={{ width: `${Math.max(calorieFill, 7)}%` }}
           />
         </div>
@@ -53,5 +55,5 @@ export function CalorieMeter({
         </div>
       </div>
     </article>
-  )
+  );
 }

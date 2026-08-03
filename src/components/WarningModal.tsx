@@ -1,13 +1,13 @@
-import { FiAlertTriangle } from 'react-icons/fi'
+import { FiAlertTriangle } from "react-icons/fi";
 
 interface WarningModalProps {
-  open: boolean
-  onDismiss: () => void
+  open: boolean;
+  onDismiss: () => void;
 }
 
 export function WarningModal({ open, onDismiss }: WarningModalProps) {
   if (!open) {
-    return null
+    return null;
   }
 
   return (
@@ -18,15 +18,25 @@ export function WarningModal({ open, onDismiss }: WarningModalProps) {
             <FiAlertTriangle size={22} />
           </div>
           <div className="flex-1">
-            <h3 className="text-2xl font-semibold text-white">Daily Budget Exceeded!</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-300">The current meal list is above the selected goal threshold. Delete an item or switch to a higher budget to calm the dashboard back down.</p>
+            <h3 className="text-2xl font-semibold text-white">
+              Daily Budget Exceeded!
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-slate-300">
+              The current meal list is above the selected goal threshold. Delete
+              an item or switch to a higher budget to calm the dashboard back
+              down.
+            </p>
           </div>
         </div>
 
-        <button type="button" onClick={onDismiss} className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-rose-500 to-red-500 px-4 py-3 text-sm font-semibold text-white transition hover:brightness-110">
+        <button
+          type="button"
+          onClick={onDismiss}
+          className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-rose-500 to-red-500 px-4 py-3 text-sm font-semibold text-white transition hover:brightness-110"
+        >
           Dismiss warning
         </button>
       </div>
     </div>
-  )
+  );
 }
