@@ -35,7 +35,9 @@ export function CalorieMeter({
               : `${remainingCalories.toLocaleString()} remaining`}
           </div>
           <div className="mt-1 text-xs uppercase tracking-[0.18em] text-zinc-500">
-            {validation === "over-budget" ? "Red alert active" : "Green pace active"}
+            {validation === "over-budget"
+              ? "Red alert active"
+              : "Green pace active"}
           </div>
         </div>
       </div>
@@ -43,7 +45,7 @@ export function CalorieMeter({
       <div className="mt-6 space-y-3">
         <div className="h-5 overflow-hidden rounded-full border border-zinc-200 bg-zinc-100">
           <div
-            className={`h-full rounded-full transition-all duration-500 ${validation === 'over-budget' ? 'bg-red-500' : 'bg-green-500'}`}
+            className={`h-full rounded-full transition-all duration-500 ${validation === "over-budget" ? "bg-red-500" : "bg-green-500"}`}
             style={{ width: `${Math.max(calorieFill, 7)}%` }}
           />
         </div>
