@@ -1,66 +1,55 @@
-import { useState, type FormEvent } from "react";
-import { FiAlertTriangle, FiCamera, FiTrash2, FiTarget } from "react-icons/fi";
-import { getGoalPlan } from "./lib/goals";
-import { CUSTOM_ENTRY_PROFILE, MOCK_SCAN_FOODS } from "./lib/mockFoods";
-import { percentOf } from "./lib/nutrition";
-import type { DraftMeal } from "./lib/types";
-import { useMealTracker } from "./state/useMealTracker";
+import { useState, type FormEvent } from 'react'
+import { FiTarget } from 'react-icons/fi'
+import { CUSTOM_ENTRY_PROFILE, MOCK_SCAN_FOODS } from './lib/mockFoods'
+import { percentOf } from './lib/nutrition'
+import type { DraftMeal } from './lib/types'
+import { CalorieMeter } from './components/CalorieMeter'
+import { GoalToggle } from './components/GoalToggle'
+import { MacroMeters } from './components/MacroMeters'
+import { MealHistory } from './components/MealHistory'
+import { MealLogger } from './components/MealLogger'
+import { WarningModal } from './components/WarningModal'
+import { useMealTracker } from './state/useMealTracker'
 
 function App() {
-  const { state, addMealFromTemplate, deleteMeal, setGoal, dismissWarning } =
-    useMealTracker();
+  const { state, addMealFromTemplate, deleteMeal, setGoal, dismissWarning } = useMealTracker()
   const [draft, setDraft] = useState<DraftMeal>({
-    name: "",
-    grams: "250",
-  });
+    name: '',
+    grams: '250',
+  })
 
-  const activePlan = state.targets;
-  const remainingCalories = Math.max(
-    activePlan.calories - state.totals.calories,
-    0,
-  );
-  const overByCalories = Math.max(
-    state.totals.calories - activePlan.calories,
-    0,
-  );
-  const calorieFill = Math.min(
-    percentOf(state.totals.calories, activePlan.calories),
-    100,
-  );
-  const proteinFill = Math.min(
-    percentOf(state.totals.protein, activePlan.protein),
-    100,
-  );
-  const carbsFill = Math.min(
-    percentOf(state.totals.carbs, activePlan.carbs),
-    100,
-  );
-  const fatsFill = Math.min(percentOf(state.totals.fats, activePlan.fats), 100);
+  const activePlan = state.targets
+  const remainingCalories = Math.max(activePlan.calories - state.totals.calories, 0)
+  const overByCalories = Math.max(state.totals.calories - activePlan.calories, 0)
+  const calorieFill = Math.min(percentOf(state.totals.calories, activePlan.calories), 100)
+  const proteinFill = Math.min(percentOf(state.totals.protein, activePlan.protein), 100)
+  const carbsFill = Math.min(percentOf(state.totals.carbs, activePlan.carbs), 100)
+  const fatsFill = Math.min(percentOf(state.totals.fats, activePlan.fats), 100)
 
   const handleManualSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    event.preventDefault()
 
-    const mealName = draft.name.trim();
-    const grams = Number(draft.grams);
+    const mealName = draft.name.trim()
+    const grams = Number(draft.grams)
 
     if (!mealName || Number.isNaN(grams) || grams <= 0) {
-      return;
+      return
     }
 
-    addMealFromTemplate(CUSTOM_ENTRY_PROFILE, grams, mealName, "manual");
-    setDraft({ name: "", grams: draft.grams });
-  };
+    addMealFromTemplate(CUSTOM_ENTRY_PROFILE, grams, mealName, 'manual')
+    setDraft({ name: '', grams: draft.grams })
+  }
 
   const handleMockUpload = () => {
-    const preset = MOCK_SCAN_FOODS[state.meals.length % MOCK_SCAN_FOODS.length];
+    const preset = MOCK_SCAN_FOODS[state.meals.length % MOCK_SCAN_FOODS.length]
 
     setDraft({
       name: preset.label,
       grams: String(preset.suggestedGrams),
-    });
+    })
 
-    addMealFromTemplate(preset, preset.suggestedGrams, preset.label, "image");
-  };
+    addMealFromTemplate(preset, preset.suggestedGrams, preset.label, 'image')
+  }
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-100">
@@ -79,311 +68,53 @@ function App() {
                   Calorie Tracker & Macro Dashboard
                 </h1>
                 <p className="max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
-                  Track meals in memory, scale nutrition by portion, and watch
-                  the budget shift in real time as your goal changes.
+                  Track meals in memory, scale nutrition by portion, and watch the budget shift in real time as your goal changes.
                 </p>
               </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3 lg:w-[36rem]">
-              {(["weight-loss", "maintenance", "muscle-gain"] as const).map(
-                (goal) => {
-                  const plan = getGoalPlan(goal);
-                  const active = state.goal === goal;
-
-                  return (
-                    <button
-                      key={goal}
-                      type="button"
-                      onClick={() => setGoal(goal)}
-                      className={`rounded-2xl border px-4 py-3 text-left transition duration-200 ${active ? plan.chipClass : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"}`}
-                    >
-                      <div className="text-sm font-semibold">{plan.label}</div>
-                      <div className="mt-1 text-xs leading-5 opacity-80">
-                        {plan.description}
-                      </div>
-                    </button>
-                  );
-                },
-              )}
-            </div>
+            <GoalToggle goal={state.goal} onChange={setGoal} />
           </div>
         </header>
 
         <section className="grid gap-6 xl:grid-cols-[1.4fr_0.95fr]">
           <div className="space-y-6">
-            <article className="rounded-[2rem] border border-white/10 bg-white/5 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-6">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-100/80">
-                    Daily Calorie Budget
-                  </p>
-                  <h2 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">
-                    {activePlan.calories.toLocaleString()} kcal target
-                  </h2>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-slate-300">
-                  <div className="font-semibold text-white">
-                    {state.validation === "over-budget"
-                      ? `${overByCalories.toLocaleString()} over`
-                      : `${remainingCalories.toLocaleString()} remaining`}
-                  </div>
-                  <div className="mt-1 text-xs uppercase tracking-[0.18em] text-slate-400">
-                    {state.validation === "over-budget"
-                      ? "Crimson alert active"
-                      : "Calm pace still green"}
-                  </div>
-                </div>
-              </div>
+            <CalorieMeter
+              targets={activePlan}
+              caloriesConsumed={state.totals.calories}
+              calorieFill={calorieFill}
+              remainingCalories={remainingCalories}
+              validation={state.validation}
+              overByCalories={overByCalories}
+            />
 
-              <div className="mt-6 space-y-3">
-                <div className="h-6 overflow-hidden rounded-full bg-slate-900 ring-1 ring-white/10">
-                  <div
-                    className={`h-full rounded-full bg-gradient-to-r transition-all duration-500 ${state.validation === "over-budget" ? "from-rose-500 to-red-500" : activePlan.barClass}`}
-                    style={{ width: `${Math.max(calorieFill, 7)}%` }}
-                  />
-                </div>
-                <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-300">
-                  <span>
-                    {state.totals.calories.toLocaleString()} kcal consumed
-                  </span>
-                  <span>{calorieFill.toFixed(1)}% of target</span>
-                </div>
-              </div>
-            </article>
-
-            <div className="grid gap-4 md:grid-cols-3">
-              {[
-                {
-                  label: "Protein",
-                  current: state.totals.protein,
-                  target: activePlan.protein,
-                  fill: proteinFill,
-                  tint: "from-emerald-400 to-green-500",
-                },
-                {
-                  label: "Carbs",
-                  current: state.totals.carbs,
-                  target: activePlan.carbs,
-                  fill: carbsFill,
-                  tint: "from-sky-400 to-blue-500",
-                },
-                {
-                  label: "Fats",
-                  current: state.totals.fats,
-                  target: activePlan.fats,
-                  fill: fatsFill,
-                  tint: "from-amber-400 to-orange-500",
-                },
-              ].map((meter) => (
-                <article
-                  key={meter.label}
-                  className="rounded-[1.75rem] border border-white/10 bg-white/5 p-5 backdrop-blur-xl"
-                >
-                  <div className="flex items-end justify-between gap-4">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                        {meter.label}
-                      </p>
-                      <h3 className="mt-2 text-xl font-semibold text-white">
-                        {meter.current.toFixed(1)} g
-                      </h3>
-                    </div>
-                    <div className="text-right text-xs text-slate-400">
-                      Target {meter.target.toFixed(0)} g
-                    </div>
-                  </div>
-                  <div className="mt-4 h-3 overflow-hidden rounded-full bg-slate-900 ring-1 ring-white/10">
-                    <div
-                      className={`h-full rounded-full bg-gradient-to-r transition-all duration-500 ${meter.tint}`}
-                      style={{ width: `${Math.max(meter.fill, 8)}%` }}
-                    />
-                  </div>
-                  <p className="mt-3 text-xs text-slate-400">
-                    {meter.fill.toFixed(1)}% of the current goal
-                  </p>
-                </article>
-              ))}
-            </div>
+            <MacroMeters
+              protein={{ current: state.totals.protein, target: activePlan.protein, fill: proteinFill }}
+              carbs={{ current: state.totals.carbs, target: activePlan.carbs, fill: carbsFill }}
+              fats={{ current: state.totals.fats, target: activePlan.fats, fill: fatsFill }}
+            />
           </div>
 
           <aside className="space-y-6">
-            <article className="rounded-[2rem] border border-white/10 bg-white/5 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                    Logging Panel
-                  </p>
-                  <h2 className="mt-2 text-2xl font-semibold text-white">
-                    Add a meal
-                  </h2>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleMockUpload}
-                  className="inline-flex items-center gap-2 rounded-2xl border border-cyan-400/30 bg-cyan-500/10 px-4 py-2.5 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-500/20"
-                >
-                  <FiCamera />
-                  Image Upload
-                </button>
-              </div>
+            <MealLogger
+              draft={draft}
+              onDraftChange={setDraft}
+              onSubmit={handleManualSubmit}
+              onMockUpload={handleMockUpload}
+            />
 
-              <form className="mt-5 space-y-4" onSubmit={handleManualSubmit}>
-                <label className="block space-y-2">
-                  <span className="text-sm font-medium text-slate-200">
-                    Food name
-                  </span>
-                  <input
-                    value={draft.name}
-                    onChange={(event) =>
-                      setDraft((current) => ({
-                        ...current,
-                        name: event.target.value,
-                      }))
-                    }
-                    className="w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400/40 focus:ring-2 focus:ring-cyan-400/20"
-                    placeholder="e.g. Chicken wrap"
-                  />
-                </label>
-
-                <label className="block space-y-2">
-                  <span className="text-sm font-medium text-slate-200">
-                    Portion weight (grams)
-                  </span>
-                  <input
-                    type="number"
-                    min="1"
-                    step="1"
-                    value={draft.grams}
-                    onChange={(event) =>
-                      setDraft((current) => ({
-                        ...current,
-                        grams: event.target.value,
-                      }))
-                    }
-                    className="w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400/40 focus:ring-2 focus:ring-cyan-400/20"
-                    placeholder="250"
-                  />
-                </label>
-
-                <p className="text-xs leading-5 text-slate-400">
-                  Manual entries use a standard baseline profile so the calories
-                  and macros scale directly with the grams you enter.
-                </p>
-
-                <button
-                  type="submit"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-400 to-emerald-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:brightness-110"
-                >
-                  Add meal
-                </button>
-              </form>
-            </article>
-
-            <article className="rounded-[2rem] border border-white/10 bg-white/5 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-6">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                    Daily History
-                  </p>
-                  <h2 className="mt-2 text-2xl font-semibold text-white">
-                    {state.meals.length} logged meals
-                  </h2>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-slate-900/70 px-3 py-2 text-xs text-slate-400">
-                  {state.validation === "over-budget"
-                    ? "Over budget"
-                    : "Within budget"}
-                </div>
-              </div>
-
-              <div className="mt-5 space-y-3">
-                {state.meals.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed border-white/10 bg-slate-950/40 p-6 text-center text-sm text-slate-400">
-                    No meals yet. Use the form or the mock upload button to seed
-                    the dashboard.
-                  </div>
-                ) : (
-                  state.meals.map((meal) => (
-                    <div
-                      key={meal.id}
-                      className="grid gap-3 rounded-2xl border border-white/10 bg-slate-950/50 p-4 md:grid-cols-[minmax(0,1.7fr)_90px_90px_90px_90px_90px_auto] md:items-center"
-                    >
-                      <div>
-                        <p className="font-semibold text-white">{meal.name}</p>
-                        <p className="mt-1 text-xs uppercase tracking-[0.18em] text-slate-500">
-                          {meal.source === "image"
-                            ? "Mock image scan"
-                            : "Manual entry"}
-                        </p>
-                      </div>
-                      <StatCell value={`${meal.grams}g`} label="grams" />
-                      <StatCell value={`${meal.calories}`} label="kcal" />
-                      <StatCell
-                        value={meal.protein.toFixed(1)}
-                        label="protein"
-                      />
-                      <StatCell value={meal.carbs.toFixed(1)} label="carbs" />
-                      <StatCell value={meal.fats.toFixed(1)} label="fats" />
-                      <button
-                        type="button"
-                        onClick={() => deleteMeal(meal.id)}
-                        className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-3 text-rose-200 transition hover:bg-rose-500/15 hover:text-rose-100"
-                        aria-label={`Delete ${meal.name}`}
-                      >
-                        <FiTrash2 />
-                      </button>
-                    </div>
-                  ))
-                )}
-              </div>
-            </article>
+            <MealHistory
+              meals={state.meals}
+              validation={state.validation}
+              onDelete={deleteMeal}
+            />
           </aside>
         </section>
       </div>
 
-      {state.warningOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-[2rem] border border-rose-400/30 bg-slate-950 p-6 shadow-2xl shadow-black/50">
-            <div className="flex items-start gap-4">
-              <div className="rounded-2xl bg-rose-500/15 p-3 text-rose-200 ring-1 ring-rose-400/20">
-                <FiAlertTriangle size={22} />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-2xl font-semibold text-white">
-                  Daily Budget Exceeded!
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-slate-300">
-                  The current meal list is above the selected goal threshold.
-                  Delete an item or switch to a higher budget to calm the
-                  dashboard back down.
-                </p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={dismissWarning}
-              className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-rose-500 to-red-500 px-4 py-3 text-sm font-semibold text-white transition hover:brightness-110"
-            >
-              Dismiss warning
-            </button>
-          </div>
-        </div>
-      ) : null}
+      <WarningModal open={state.warningOpen} onDismiss={dismissWarning} />
     </main>
-  );
+  )
 }
 
-function StatCell({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm md:block md:bg-transparent md:px-0 md:py-0 md:text-right">
-      <span className="text-xs uppercase tracking-[0.16em] text-slate-500 md:hidden">
-        {label}
-      </span>
-      <span className="font-semibold text-white">{value}</span>
-    </div>
-  );
-}
-
-export default App;
+export default App
