@@ -12,6 +12,10 @@ export interface FoodTemplate extends Macros {
 }
 
 export function scaleNutrition(template: FoodTemplate, grams: number): Macros {
+  if (template.baseGrams <= 0) {
+    return { calories: 0, protein: 0, carbs: 0, fats: 0 }
+  }
+
   const factor = grams / template.baseGrams
 
   return {
