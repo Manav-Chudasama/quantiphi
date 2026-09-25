@@ -15,6 +15,11 @@ export function MealLogger({
   onSubmit,
   onMockUpload,
 }: MealLoggerProps) {
+  const logMeal = (name: string, grams: number) => {
+    onDraftChange({ name, grams: grams.toString() });
+    onSubmit({ preventDefault: () => {} } as FormEvent<HTMLFormElement>);
+  };
+
   return (
     <article className="rounded-[1.75rem] border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex items-start justify-between gap-4">
@@ -59,7 +64,7 @@ export function MealLogger({
             step="1"
             value={draft.grams}
             onChange={(event) =>
-              onDraftChange({ ...draft, grams: event.target.value })
+              onDraftChange({ ...draft, grams: event.target.value.toString() })
             }
             className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
             placeholder="250"
@@ -78,6 +83,23 @@ export function MealLogger({
           Add meal
         </button>
       </form>
+
+      <div className="mt-4 flex gap-4">
+        <button
+          type="button"
+          onClick={() => logMeal('Chips', 100)}
+          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-yellow-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-yellow-600"
+        >
+          Log Chips
+        </button>
+        <button
+          type="button"
+          onClick={() => logMeal('Coffee', 250)}
+          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brown-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-brown-600"
+        >
+          Log Coffee
+        </button>
+      </div>
     </article>
   );
 }
