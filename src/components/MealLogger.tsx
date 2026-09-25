@@ -16,7 +16,7 @@ export function MealLogger({
   onMockUpload,
 }: MealLoggerProps) {
   const logMeal = (name: string, grams: number) => {
-    onDraftChange({ name, grams });
+    onDraftChange({ name, grams: grams.toString() });
     onSubmit({ preventDefault: () => {} } as FormEvent<HTMLFormElement>);
   };
 
@@ -64,7 +64,7 @@ export function MealLogger({
             step="1"
             value={draft.grams}
             onChange={(event) =>
-              onDraftChange({ ...draft, grams: Number(event.target.value) })
+              onDraftChange({ ...draft, grams: event.target.value.toString() })
             }
             className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
             placeholder="250"
